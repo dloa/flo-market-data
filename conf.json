@@ -12,7 +12,7 @@
         "LTC_FLO_LAST":"http://pubapi.cryptsy.com/api.php?method=singlemarketdata&marketid=61",
         "LTC_FLO_VOL":"http://pubapi.cryptsy.com/api.php?method=singlemarketdata&marketid=61"
     },
-    "bitcoinaverage": {
-        "USD_BTC_LAST":"https://api.bitcoinaverage.com/ticker/global/USD/"
+    "coinmarketcap": {
+        "USD_BTC_LAST":"https://api.coinmarketcap.com/v1/ticker/bitcoin/"
     }
 }

@@ -16,9 +16,9 @@ const (
 )
 
 type API_URLs struct {
-	Bitcoinaverage struct {
+	Coinmarketcap struct {
 		USDBTCLAST string `json:"USD_BTC_LAST"`
-	} `json:"bitcoinaverage"`
+	} `json:"coinmarketcap"`
 	Bittrex struct {
 		BTCFLOLAST string `json:"BTC_FLO_LAST"`
 		BTCFLOVOL  string `json:"BTC_FLO_VOL"`
@@ -93,7 +93,7 @@ func watchMarkets() {
 		market_data.cryptsy_LTC_FLO_last, market_data.cryptsy_LTC_FLO_volu = get_cryptsy_ltc_flo_last(conf.Cryptsy.LTCFLOLAST)
 
 		// bitcoinaverage
-		market_data.bitcoinaverage_USD = get_bitcoinaverage_usd(conf.Bitcoinaverage.USDBTCLAST)
+		market_data.bitcoinaverage_USD = get_coinmarketcap_usd(conf.Coinmarketcap.USDBTCLAST)
 
 		// calculate stuff
 		market_data.FLO_24h_vol = market_data.bittrex_BTC_FLO_volu + market_data.poloniex_BTC_FLO_volu + market_data.cryptsy_LTC_FLO_volu

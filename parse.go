@@ -142,9 +142,9 @@ func parse_poloniex_btc_flo_last(resp *http.Response) float64 {
 			something := alldata[0].(map[string]interface{})
 			for k, v := range something {
 				if k == "rate" {
-                    if v == nil {
-                        return 0
-                    }
+					if v == nil {
+						return 0
+					}
 					rv, err := strconv.ParseFloat(v.(string), 64)
 					if err != nil {
 						fmt.Println("\nCan't parse Polonirex BTC/FLO JSON.")
@@ -208,9 +208,9 @@ func parse_poloniex_btc_flo_volu(resp *http.Response) float64 {
 				for kk, vvv := range vv {
 
 					if kk == "FLO" {
-                        if vvv == nil {
-                            return 0
-                        }
+						if vvv == nil {
+							return 0
+						}
 						rv, err := strconv.ParseFloat(vvv.(string), 64)
 						if err != nil {
 							fmt.Println("\nError parsing Poloniex volume JSON.")
@@ -275,9 +275,9 @@ func parse_cryptsy_btc_ltc_last(resp *http.Response) float64 {
 								//fmt.Printf("\ns3: %v\n", s3)
 								for k4, v4 := range s3 {
 									if k4 == "lasttradeprice" {
-                                        if v4 == nil {
-                                            return 0.0
-                                        }
+										if v4 == nil {
+											return 0.0
+										}
 										rv, err := strconv.ParseFloat(v4.(string), 64)
 										if err != nil {
 											return 0.0
@@ -351,9 +351,9 @@ func parse_cryptsy_ltc_flo_last(resp *http.Response) (float64, float64) {
 								for k4, v4 := range s3 {
 									if k4 == "lasttradeprice" {
 										var err error
-                                        if v4 == nil {
-                                            return 0.0, 0.0
-                                        }
+										if v4 == nil {
+											return 0.0, 0.0
+										}
 										last, err = strconv.ParseFloat(v4.(string), 64)
 										if err != nil {
 											// error
@@ -363,9 +363,9 @@ func parse_cryptsy_ltc_flo_last(resp *http.Response) (float64, float64) {
 										}
 									}
 									if k4 == "volume" {
-                                        if v4 == nil {
-                                            return 0.0, 0.0
-                                        }
+										if v4 == nil {
+											return 0.0, 0.0
+										}
 										volu, err = strconv.ParseFloat(v4.(string), 64)
 										if err != nil {
 											// error
@@ -388,6 +388,13 @@ func parse_cryptsy_ltc_flo_last(resp *http.Response) (float64, float64) {
 	return 0.0, 0.0
 }
 
+type Coinmarketcap_BTC []struct {
+	_24hAvg   string `json:"price_usd"`
+	Last      string `json:"price_usd"`
+	Timestamp string `json:"last_updated"`
+	VolumeBtc string `json:"24h_volume_usd"`
+}
+
 type Bitcoinaverage struct {
 	_24hAvg       float64 `json:"24h_avg"`
 	Ask           float64 `json:"ask"`
@@ -396,6 +403,18 @@ type Bitcoinaverage struct {
 	Timestamp     string  `json:"timestamp"`
 	VolumeBtc     float64 `json:"volume_btc"`
 	VolumePercent float64 `json:"volume_percent"`
+}
+
+func get_coinmarketcap_usd(url string) float64 {
+	resp, err := http.Get(url)
+	if err != nil {
+		fmt.Println("\nError getting coinmarketcap bitcoin USD average.")
+		fmt.Printf("%v\n", err)
+		return 0
+	} else {
+		return parse_coinmarketcap_usd(resp)
+	}
+	return 0.0
 }
 
 func get_bitcoinaverage_usd(url string) float64 {
@@ -426,6 +445,34 @@ func parse_bitcoinaverage_usd(resp *http.Response) float64 {
 			return 0
 		}
 		return alldata.Last
+	}
+
+	return 0.0
+}
+
+func parse_coinmarketcap_usd(resp *http.Response) float64 {
+	body, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		fmt.Println("\nError getting coinmarketcap USD exchange rate.")
+		fmt.Printf("%v\n", err)
+		return 0
+	} else {
+		alldata := Coinmarketcap_BTC{}
+		err := json.Unmarshal(body, &alldata)
+
+		ourdata := alldata[0]
+		// TODO: make this not suck
+		if err != nil {
+			fmt.Printf("error: %v\n", err)
+			return 0
+		}
+
+		f, err := strconv.ParseFloat(ourdata.Last, 64)
+		// TODO: make this not suck
+		if err != nil {
+			return 0
+		}
+		return f
 	}
 
 	return 0.0
