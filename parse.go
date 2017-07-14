@@ -458,14 +458,14 @@ func parse_coinmarketcap_usd(resp *http.Response) float64 {
 		return 0
 	} else {
 		alldata := Coinmarketcap_BTC{}
-		if alldata == Coinmarketcap_BTC{} {
-			fmt.Println("error - Coinmarketcap_BTC{} struct data is empty")
-			return 0
-		}
 		err := json.Unmarshal(body, &alldata)
 		// TODO: make this not suck
 		if err != nil {
 			fmt.Printf("error: %v\n", err)
+			return 0
+		}
+		if len(alldata) == 0 {
+			fmt.Println("error - alldata is empty")
 			return 0
 		}
 		ourdata := alldata[0]
