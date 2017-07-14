@@ -463,13 +463,12 @@ func parse_coinmarketcap_usd(resp *http.Response) float64 {
 			return 0
 		}
 		err := json.Unmarshal(body, &alldata)
-
-		ourdata := alldata[0]
 		// TODO: make this not suck
 		if err != nil {
 			fmt.Printf("error: %v\n", err)
 			return 0
 		}
+		ourdata := alldata[0]
 
 		f, err := strconv.ParseFloat(ourdata.Last, 64)
 		// TODO: make this not suck
