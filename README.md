@@ -1,6 +1,6 @@
 # flo-market-data
 
-Calculates FLO market data from various markets, provies an API and pushes
+Calculates FLO market data from various markets, provides an API and pushes
 updates to the block chain periodically.
 
 ## Install
@@ -11,7 +11,7 @@ It requires mattn/go-sqlite3 for database operations.
 
 ```
 $ go get github.com/mattn/go-sqlite3
-$ go get github.com/metacoin/flo-market-data
+$ go get github.com/oipwg/flo-market-data
 ```
 
 Optional: install sqlite3 locally!
@@ -20,77 +20,64 @@ Optional: install sqlite3 locally!
 
 *OSX*: `brew install sqlite3`
 
-## Config
 
-Set API to "false" if you don't want the API server to run. Otherwise, config is pretty straightforward, I think. You can find the config documentation [here][1].
-
-## Running
+## Running standalone
 
 Navigate to the flo-market-data directory and run the program!
 
 Remember to include all packages:
 
 ```
-$ go run *.go
+$ go run main.go
 ```
 
-You'll see some output, a `.` is output every time the market data is received from remote URLs. 
 
 ## API
 
 Hit this URL with a `GET` request to see the recent market data:
 
 ```
-http://127.0.0.1:41290/flo-market-data/v1/getAll
+http://127.0.0.1:41290/flo-market-data/v1/latest
 ```
 
 You'll get a response like this:
 
 ```
-{
-    "unixtime": 1432690997,
-    "cryptsy": "0.1452",
-    "poloniex": "0.2948",
-    "bittrex": "0.5600",
-    "daily-volume": "128463.84375000",
-    "weighted": "0.00000703",
-    "USD": "0.00168"
-}
+  {
+    "unixtime": 1518474167,
+    "polo_vol": 2.47774214,
+    "polo_btc_flo": 0.0000118,
+    "bittrex_vol": 1.71902953,
+    "bittrex_btc_flo": 0.0000118,
+    "cmc_btc_usd": 8811.68,
+    "cmc_flo_usd": 0.103969,
+    "volume": 4.19677167,
+    "weighted_btc": 0.00001179,
+    "weighted_usd": 0.1038897
+  }
 ```
 
-When you hit the API with a call, you'll see something like this:
-
-```
-GET /flo-market-data/v1/getAll 127.0.0.1:64651
-```
-
-## Example output
-
-*NOTE*: API mode is enabled, so verbose mode is disabled (there is no real command-line output in API mode).
-
-In verbose mode, you should see something like this:
-
-```
-$ go run *.go
-24hr volume: 516808.49759438
-
-bittrex vol: 68.71 
-poloniex vl: 1.25 
-cryptsy vol: 30.04 
-
-weighted   : 0.00000590
-flo/USD    : 0.00142257
-```
-
-## Block chain publishing
-
-Coming soon!
-
-* Publish to the block chain via Alexandria (using flo-market-data as a plugin)
-* Publish to the block chain using flo-market-data as a standalone application
 
 # License
 
-MIT
+The MIT License
 
-[1]:./docs/CONFIG.md
+Copyright (c) 2013-2018 Flo Developers
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in
+all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+THE SOFTWARE.

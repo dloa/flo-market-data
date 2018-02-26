@@ -1,3 +1,6 @@
+# Standalone
 db/markets.db
 main
-api
+
+# Jetbrains
+.idea/
