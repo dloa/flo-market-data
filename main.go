@@ -15,8 +15,8 @@ func main() {
 	}
 	go fmd.WatchAndStoreForever(1 * time.Minute)
 
-	fmdPrefix := "/flo-market-data/v1/"
-	http.Handle(fmdPrefix, http.StripPrefix(fmdPrefix, fmd.ApiHandler))
+	fmdPrefix := "/flo-market-data/v1"
+	http.Handle(fmdPrefix+"/", http.StripPrefix(fmdPrefix, fmd.ApiHandler))
 
 	log.Println("Listening on port 41290")
 	err = http.ListenAndServe(":41290", nil)
