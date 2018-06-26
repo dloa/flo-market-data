@@ -13,9 +13,15 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
+
+	apiKey := "apikey"
+	secret := "secret"
+
+	fmd.InitMRR(apiKey, secret)
+
 	go fmd.WatchAndStoreForever(1 * time.Minute)
 
-	fmdPrefix := "/flo-market-data/v1"
+	fmdPrefix := ""
 	http.Handle(fmdPrefix+"/", http.StripPrefix(fmdPrefix, fmd.ApiHandler))
 
 	log.Println("Listening on port 41290")

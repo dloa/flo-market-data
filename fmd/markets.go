@@ -6,6 +6,12 @@ import (
 	"fmt"
 	"net/http"
 	"time"
+
+	mrr "github.com/marccardinal/go-miningrigrentals-api"
+)
+
+var (
+	mrrClient *mrr.Client
 )
 
 const cmcTickerUrl = "https://api.coinmarketcap.com/v1/ticker/%s/"
@@ -80,14 +86,22 @@ type marketState struct {
 	time              time.Time
 	cmcBtc            cmcTicker
 	cmcFlo            cmcTicker
+	cmcLtc            cmcTicker
 	poloVol           poloVolFlo
 	poloHistory       poloTradeHistory
 	bittrexSummary    bittrexGetMarketSummary
+	mrrRigsPriceInfo  mrr.RigListInfoPrice
 	errCmcBtc         error
 	errCmcFlo         error
+	errCmcLtc         error
 	errPoloVol        error
 	errPoloHistory    error
 	errBittrexSummary error
+	errMrrRigs        error
+}
+
+func InitMRR(apiKey, secret string) {
+	mrrClient = mrr.New(apiKey, secret)
 }
 
 // close(stop) to stop watching
@@ -115,9 +129,17 @@ func WatchMarkets(refreshRate time.Duration, stop <-chan struct{}, updates chan<
 func refreshMarkets() (market marketState) {
 	market.errCmcBtc = fetchJSON(fmt.Sprintf(cmcTickerUrl, "bitcoin"), &market.cmcBtc)
 	market.errCmcFlo = fetchJSON(fmt.Sprintf(cmcTickerUrl, "florincoin"), &market.cmcFlo)
+	market.errCmcFlo = fetchJSON(fmt.Sprintf(cmcTickerUrl, "litecoin"), &market.cmcLtc)
 	market.errPoloVol = fetchJSON(poloVolFloUrl, &market.poloVol)
 	market.errPoloHistory = fetchJSON(poloTradeHistoryUrl, &market.poloHistory)
 	market.errBittrexSummary = fetchJSON(bittrexGetMarketSummaryUrl, &market.bittrexSummary)
+
+	_, rigListInfo, err := mrrClient.ListRigs("scrypt", 1)
+	market.errMrrRigs = err
+	if err == nil {
+		market.mrrRigsPriceInfo = rigListInfo.Price
+	}
+
 	market.time = time.Now()
 	return
 }

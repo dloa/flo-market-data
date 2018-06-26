@@ -26,10 +26,13 @@ type DataPoint struct {
 	BittrexVol    float64 `json:"bittrex_vol"`
 	BittrexBtcFlo float64 `json:"bittrex_btc_flo"`
 	CmcBtcUsd     float64 `json:"cmc_btc_usd"`
+	CmcLtcUsd     float64 `json:"cmc_ltc_usd"`
 	CmcFloUsd     float64 `json:"cmc_flo_usd"`
 	Volume        float64 `json:"volume"`
 	WeightedBtc   float64 `json:"weighted_btc"`
 	WeightedUsd   float64 `json:"weighted_usd"`
+	MrrLast10     float64 `json:"mrr_last_10"`
+	MrrLast24hr   float64 `json:"mrr_last_24hr"`
 }
 
 func apiGetLast(w http.ResponseWriter, _ *http.Request) {
