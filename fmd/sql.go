@@ -23,11 +23,13 @@ const createTable = `CREATE TABLE IF NOT EXISTS markets (
   weightedBtc   FLOAT   NOT NULL,
   weightedUsd   FLOAT   NOT NULL,
   mrrLast10     FLOAT   NOT NULL,
-  mrrLast24hr   FLOAT   NOT NULL
+  mrrLast24hr   FLOAT   NOT NULL,
+  nh24hr        FLOAT   NOT NULL,
+  nhLast        FLOAT   NOT NULL
 )`
 
-const insertStatement = `INSERT INTO markets (unixtime, poloVol, poloBtcFlo, bittrexVol, bittrexBtcFlo, cmcBtcUsd, cmcFloUsd, cmcLtcUsd, volume, weightedBtc, weightedUsd, mrrLast10, mrrLast24hr)
-VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
+const insertStatement = `INSERT INTO markets (unixtime, poloVol, poloBtcFlo, bittrexVol, bittrexBtcFlo, cmcBtcUsd, cmcFloUsd, cmcLtcUsd, volume, weightedBtc, weightedUsd, mrrLast10, mrrLast24hr, nhLast, nh24hr)
+VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
 
 func InitDB(path string) error {
 	var err error
@@ -43,12 +45,12 @@ func InitDB(path string) error {
 	return nil
 }
 
-func insertToDb(unixtime int64, poloVol, poloBtcFlo, bittrexVol, bittrexBtcFlo, cmcBtcUsd, cmcFloUsd, cmcLtcUsd, volume, weightedBtc, weightedUsd, mrrLast10, mrrLast24hr float64) error {
+func insertToDb(unixtime int64, poloVol, poloBtcFlo, bittrexVol, bittrexBtcFlo, cmcBtcUsd, cmcFloUsd, cmcLtcUsd, volume, weightedBtc, weightedUsd, mrrLast10, mrrLast24hr, nhLast, nh24hr float64) error {
 	insertPrepared, err := fmdDB.Prepare(insertStatement)
 	if err != nil {
 		return err
 	}
-	_, err = insertPrepared.Exec(unixtime, poloVol, poloBtcFlo, bittrexVol, bittrexBtcFlo, cmcBtcUsd, cmcFloUsd, cmcLtcUsd, volume, weightedBtc, weightedUsd, mrrLast10, mrrLast24hr)
+	_, err = insertPrepared.Exec(unixtime, poloVol, poloBtcFlo, bittrexVol, bittrexBtcFlo, cmcBtcUsd, cmcFloUsd, cmcLtcUsd, volume, weightedBtc, weightedUsd, mrrLast10, mrrLast24hr, nh24hr, nhLast)
 	return err
 }
 
@@ -66,7 +68,9 @@ func fetchDataPoint(from, to, limit int64) ([]DataPoint, error) {
   weightedBtc,
   weightedUsd,
   mrrLast10,
-  mrrLast24hr
+  mrrLast24hr,
+  nhLast,
+  nh24hr
 FROM markets
 WHERE unixtime >= ? AND unixtime <= ?
 ORDER BY unixtime
@@ -87,7 +91,8 @@ LIMIT ?`)
 	for rows.Next() {
 		dp := DataPoint{}
 		rows.Scan(&dp.Unixtime, &dp.PoloVol, &dp.PoloBtcFlo, &dp.BittrexVol, &dp.BittrexBtcFlo, &dp.CmcBtcUsd,
-			&dp.CmcFloUsd, &dp.CmcLtcUsd, &dp.Volume, &dp.WeightedBtc, &dp.WeightedUsd, &dp.MrrLast10, &dp.MrrLast24hr)
+			&dp.CmcFloUsd, &dp.CmcLtcUsd, &dp.Volume, &dp.WeightedBtc, &dp.WeightedUsd, &dp.MrrLast10, &dp.MrrLast24hr,
+			&dp.NhLast, &dp.Nh24hr)
 		res = append(res, dp)
 	}
 	if err := rows.Err(); err != nil {

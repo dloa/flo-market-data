@@ -25,27 +25,11 @@ func WatchAndStoreForever(refreshRate time.Duration) error {
 func storeMarketStateFromChannel(states <-chan marketState) {
 	for s := range states {
 		var err error
-		var pVol, pBtcFlo, bVol, bBtcFlo, cBtcUsd, cFloUsd, cLtcUsd, vol, btc, usd, mrrLast10, mrrLast24hr float64
+		var pVol, pBtcFlo, bVol, bBtcFlo, cBtcUsd, cFloUsd, cLtcUsd, vol, btc, usd, mrrLast10, mrrLast24hr, nhLast, nh24hr float64
 
-		if s.errPoloVol == nil {
-			pVol, err = strconv.ParseFloat(s.poloVol.BtcFlo.Btc, 64)
-			if err != nil {
-				pVol = 0
-			}
-		} else {
-			pVol = 0
-		}
-
-		if s.errPoloHistory == nil {
-			pBtcFlo, err = strconv.ParseFloat(s.poloHistory[0].Rate, 64)
-			if err != nil {
-				pVol = 0
-				pBtcFlo = 0
-			}
-		} else {
-			pVol = 0
-			pBtcFlo = 0
-		}
+		// no longer listed on Poloniex
+		pVol = 0
+		pBtcFlo = 0
 
 		if s.errBittrexSummary == nil && s.bittrexSummary.Success == true {
 			bVol = s.bittrexSummary.Result[0].BaseVolume
@@ -96,6 +80,36 @@ func storeMarketStateFromChannel(states <-chan marketState) {
 			mrrLast10 = s.mrrRigsPriceInfo.Last10
 		}
 
+		if s.errNhLast != nil {
+			nhLast = 0
+		} else {
+			nhLast = 0
+			for _, stat := range s.nhLast.Result.Stats {
+				if stat.Algo == niceHashScryptAlgo {
+					nhLast, err = strconv.ParseFloat(stat.Price, 64)
+					if err != nil {
+						nhLast = 0
+					}
+					break
+				}
+			}
+		}
+
+		if s.errNh24hr != nil {
+			nh24hr = 0
+		} else {
+			nh24hr = 0
+			for _, stat := range s.nh24Hr.Result.Stats {
+				if stat.Algo == niceHashScryptAlgo {
+					nh24hr, err = strconv.ParseFloat(stat.Price, 64)
+					if err != nil {
+						nh24hr = 0
+					}
+					break
+				}
+			}
+		}
+
 		now := time.Now()
 		dps, err := fetchDataPoint(now.Add(0 - time.Hour*24).Unix(), now.Unix(), 1440)
 		if err != nil {
@@ -104,9 +118,9 @@ func storeMarketStateFromChannel(states <-chan marketState) {
 			mrrLast24hr = avgMrr(dps)
 		}
 
-		err = insertToDb(s.time.Unix(), pVol, pBtcFlo, bVol, bBtcFlo, cBtcUsd, cFloUsd, cLtcUsd, vol, btc, usd, mrrLast10, mrrLast24hr)
+		err = insertToDb(s.time.Unix(), pVol, pBtcFlo, bVol, bBtcFlo, cBtcUsd, cFloUsd, cLtcUsd, vol, btc, usd, mrrLast10, mrrLast24hr, nhLast, nh24hr)
 		if err != nil {
-			log.Println("fmd: Dabatase insertion failed... ")
+			log.Println("fmd: Database insertion failed... ")
 			log.Println(err)
 		}
 	}

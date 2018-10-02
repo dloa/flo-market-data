@@ -33,6 +33,8 @@ type DataPoint struct {
 	WeightedUsd   float64 `json:"weighted_usd"`
 	MrrLast10     float64 `json:"mrr_last_10"`
 	MrrLast24hr   float64 `json:"mrr_last_24hr"`
+	NhLast        float64 `json:"nh_last"`
+	Nh24hr        float64 `json:"nh_24hr"`
 }
 
 func apiGetLast(w http.ResponseWriter, _ *http.Request) {

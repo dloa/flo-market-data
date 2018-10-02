@@ -35,29 +35,6 @@ type cmcTickerValue struct {
 	LastUpdated      string `json:"last_updated"`
 }
 
-const poloVolFloUrl = "https://poloniex.com/public?command=return24hVolume"
-
-type poloVolFlo struct {
-	BtcFlo poloBtcFlo `json:"BTC_FLO"`
-}
-type poloBtcFlo struct {
-	Btc string `json:"BTC"`
-	Flo string `json:"FLO"`
-}
-
-const poloTradeHistoryUrl = "https://poloniex.com/public?command=returnTradeHistory&currencyPair=BTC_FLO"
-
-type poloTradeHistory []poloTradeHistoryValue
-type poloTradeHistoryValue struct {
-	GlobalTradeId int64  `json:"globalTradeID"`
-	TradeId       int64  `json:"tradeID"`
-	Date          string `json:"date"`
-	Type          string `json:"type"`
-	Rate          string `json:"rate"`
-	Amount        string `json:"amount"`
-	Total         string `json:"total"`
-}
-
 const bittrexGetMarketSummaryUrl = "https://bittrex.com/api/v1.1/public/getmarketsummary?market=btc-flo"
 
 type bittrexGetMarketSummary struct {
@@ -81,21 +58,40 @@ type bittrexGetMarketSummaryResult struct {
 	Created        string  `json:"Created"`
 }
 
+const niceHashLastUrl = "https://api.nicehash.com/api?method=stats.global.current"
+const niceHash24hrUrl = "https://api.nicehash.com/api?method=stats.global.24h"
+const niceHashScryptAlgo = 0
+
+type niceHashApiSummary struct {
+	Result niceHashApiResults `json:"result"`
+	Method string             `json:"method"`
+}
+
+type niceHashApiResults struct {
+	Stats []niceHashApiStats `json:"stats"`
+}
+
+type niceHashApiStats struct {
+	Price string `json:"price"`
+	Algo  int64  `json:"algo"`
+	Speed string `json:"speed"`
+}
+
 type marketState struct {
 	err               error
 	time              time.Time
 	cmcBtc            cmcTicker
 	cmcFlo            cmcTicker
 	cmcLtc            cmcTicker
-	poloVol           poloVolFlo
-	poloHistory       poloTradeHistory
+	nhLast            niceHashApiSummary
+	nh24Hr            niceHashApiSummary
 	bittrexSummary    bittrexGetMarketSummary
 	mrrRigsPriceInfo  mrr.RigListInfoPrice
 	errCmcBtc         error
 	errCmcFlo         error
 	errCmcLtc         error
-	errPoloVol        error
-	errPoloHistory    error
+	errNhLast         error
+	errNh24hr         error
 	errBittrexSummary error
 	errMrrRigs        error
 }
@@ -130,8 +126,8 @@ func refreshMarkets() (market marketState) {
 	market.errCmcBtc = fetchJSON(fmt.Sprintf(cmcTickerUrl, "bitcoin"), &market.cmcBtc)
 	market.errCmcFlo = fetchJSON(fmt.Sprintf(cmcTickerUrl, "florincoin"), &market.cmcFlo)
 	market.errCmcFlo = fetchJSON(fmt.Sprintf(cmcTickerUrl, "litecoin"), &market.cmcLtc)
-	market.errPoloVol = fetchJSON(poloVolFloUrl, &market.poloVol)
-	market.errPoloHistory = fetchJSON(poloTradeHistoryUrl, &market.poloHistory)
+	market.errNhLast = fetchJSON(niceHashLastUrl, &market.nhLast)
+	market.errNh24hr = fetchJSON(niceHash24hrUrl, &market.nh24Hr)
 	market.errBittrexSummary = fetchJSON(bittrexGetMarketSummaryUrl, &market.bittrexSummary)
 
 	_, rigListInfo, err := mrrClient.ListRigs("scrypt", 1)
