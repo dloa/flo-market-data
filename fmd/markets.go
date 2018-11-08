@@ -145,5 +145,7 @@ func fetchJSON(url string, result interface{}) error {
 	if err != nil {
 		return err
 	}
-	return json.NewDecoder(resp.Body).Decode(result)
+	err = json.NewDecoder(resp.Body).Decode(result)
+	resp.Body.Close()
+	return err
 }
